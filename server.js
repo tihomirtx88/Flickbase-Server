@@ -11,6 +11,8 @@ const app = express();
 
 const routes = require('./routes');
 
+const passport = require('passport');
+const { jwtStrategy } = require('./middleware/passport');
 const { handleError, convertToApiError } = require('./middleware/apiErros');
 
 const mongoUrl = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}?retryWrites=true&w=majority`;
@@ -22,6 +24,10 @@ app.use(bodyParser.json());
 //Sanitize
 app.use(xss());
 app.use(mongoSanitize());
+
+//PASPORT
+app.use(passport.initialize());
+passport.use('jwt', jwtStrategy);
 
 // Routes
 app.use('/api', routes);
