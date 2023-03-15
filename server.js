@@ -1,13 +1,12 @@
 const express = require('express');
+require('dotenv').config();
+const app = express();
 
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 
 const xss = require('xss-clean');
 const mongoSanitize = require('express-mongo-sanitize');
-
-require('dotenv').config();
-const app = express();
 
 const routes = require('./routes');
 
