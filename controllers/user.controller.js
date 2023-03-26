@@ -12,7 +12,14 @@ const userController = {
             }
             res.json(res.locals.permission.filter(user._doc))
         } catch(error){
-            next(error)
+            next(error);
+        }
+    },
+    async updateProfile(req, res, next){
+        try {
+            
+        } catch (error) {
+            next(error);
         }
     }
 }
