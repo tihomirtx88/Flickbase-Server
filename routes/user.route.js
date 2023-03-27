@@ -13,4 +13,6 @@ router.route('/profile')
 router.route('/email')
 .patch(auth('updateOwn', 'profile'), userController.updateUserEmail);
 
+router.route('/verify').get(userController.verifyAccount);
+
 module.exports = router;

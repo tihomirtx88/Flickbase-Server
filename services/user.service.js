@@ -1,6 +1,8 @@
 const { User } = require('../models/User');
 const { ApiError } = require('../middleware/apiErros');
 const httpStatus = require('http-status');
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
 const userByEmail = async (email) => {
     return await User.findOne({email});
@@ -57,9 +59,15 @@ const updateUserEmail = async (req) => {
         throw error;
     }
 };
-;module.exports = {
+
+const validateToken = (token) => {
+    return jwt.verify(token, process.env.DB_SECRET);
+};
+
+module.exports = {
     userByEmail,
     findUserById,
     updateUserProfile,
-    updateUserEmail
+    updateUserEmail,
+    validateToken
 };
