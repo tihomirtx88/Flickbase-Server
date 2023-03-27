@@ -1,5 +1,6 @@
 const httpStatus = require('http-status');
-const { ApiError } = require('../middleware/apiErros')
+const { ApiError } = require('../middleware/apiErros');
+
 
 const { userService, authService, emailService } = require('../services');
 
@@ -34,6 +35,24 @@ const userController = {
             res.cookie('x-access-token', token).send({
                 user: res.locals.permission.filter(user._doc),
                 token: token
+            });
+        } catch (error) {
+            next(error);
+        }
+    },
+    async verifyAccount(req, res, next){
+        try {
+            const token = userService.validateToken(req.query.validation);
+            const user = await userService.findUserById(token.sub);
+
+            if(!user) throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+            if(user.verified) throw new ApiError(httpStatus.NOT_FOUND, 'Account is already verified');
+
+            user.verified = true;
+            user.save();
+            res.status(httpStatus.CREATED).send({
+                email: user.email,
+                verified: true
             });
         } catch (error) {
             next(error);
