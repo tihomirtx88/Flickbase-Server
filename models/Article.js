@@ -12,10 +12,10 @@ const articleSchema = mongoose.Schema({
         type: String,
         required: [true, 'You need some content']
     },
-    excerp: {
-        type: String,
-        required: [true, 'Please add an excerp'],
-        maxLength:500
+    excerpt:{
+        type:String,
+        required:[true,'Please add an excerpt'],
+        maxLength:500,
     },
     score: {
         type: Number,
