@@ -47,6 +47,24 @@ const articlesController = {
         } catch (error) {
             next(error);
         }
+    },
+    async getAllArticles(req, res, next){
+        try {
+            const articles = await articleService.getAllArticles(req);
+            res.json(articles);
+
+        } catch (error) {
+            next(error);
+        }
+    },
+    async getMoreArticles(req, res, next){
+        try {
+            const articles = await articleService.getMoreArticles(req);
+            res.json(articles);
+
+        } catch (error) {
+            next(error);
+        }
     }
 };
 
