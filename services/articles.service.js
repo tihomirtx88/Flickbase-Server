@@ -69,10 +69,52 @@ const deleteArticleById = async (_id) => {
     }
 };
 
+const getAllArticles = async (req) => {
+    const sortby = req.query.sortby || "_id";
+    const order = req.query.order || "desc";
+    const limit = req.query.limit || 2;
+
+    try {
+        const articles = await Article
+          .find({status:"public"})
+          .sort([
+            [sortby, order]
+          ])
+          .limit(parseInt(limit))
+          return articles;
+
+    } catch (error) {
+        throw error;
+    }
+};
+
+const getMoreArticles = async (req) => {
+    const sortby = req.body.sortby || "_id";
+    const order = req.body.order || "desc";
+    const limit = req.body.limit || 3;
+    const skip = req.body.skip || 0;
+
+    try {
+        const articles = await Article
+          .find({status:"public"})
+          .sort([
+            [sortby, order]
+          ])
+          .skip(skip)
+          .limit(parseInt(limit))
+          return articles;
+
+    } catch (error) {
+        throw error;
+    }
+};
+
 module.exports = {
     addArticle,
     getArticleById,
     getUserArticleById,
     updateArticleById,
-    deleteArticleById
+    deleteArticleById,
+    getAllArticles,
+    getMoreArticles
 };
