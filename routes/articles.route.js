@@ -18,6 +18,6 @@ router.route('/all')
 .get(articlesController.getAllArticles)
 .post(articlesController.getMoreArticles);
 
-
+router.post('/admin/paginate', auth('readAny', 'articles'), articlesController.adminPaginate);
 
 module.exports = router;
