@@ -29,6 +29,13 @@ const articlesController = {
             next(error);
         }
     },
+    async updateArticleById(req, res, next){
+        try {
+            
+        } catch (error) {
+            next(error);
+        }
+    }
 };
 
 module.exports = articlesController;

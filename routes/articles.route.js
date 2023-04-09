@@ -9,7 +9,7 @@ router.post('/', auth('createAny', 'articles'), addArticleValidator, articlesCon
 
 router.route('/article/:id')
    .get(auth('readAny','articles'),articlesController.getArticleById)
-   .patch(auth('updateAny', 'articles'), au);
+   .patch(auth('updateAny', 'articles'), articlesController.updateArticleById);
 
 router.route('/users/article/:id').get(articlesController.getUserArticleById);
 
