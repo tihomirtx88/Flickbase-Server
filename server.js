@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors')
 require('dotenv').config();
 const app = express();
 
@@ -16,6 +17,8 @@ const { handleError, convertToApiError } = require('./middleware/apiErros');
 
 const mongoUrl = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}?retryWrites=true&w=majority`;
 mongoose.connect(mongoUrl);
+
+app.use(cors())
 
 //parsing 
 app.use(bodyParser.json());
