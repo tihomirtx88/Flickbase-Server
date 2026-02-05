@@ -2,6 +2,7 @@ const { authService, emailService } = require("../services/");
 const httpStatus = require("http-status");
 
 const authCotroller = {
+
   async register(req, res, next) {
     try {
       const { email, password } = req.body;
@@ -21,6 +22,7 @@ const authCotroller = {
   },
 
   async login(req, res, next){
+    
      try {
       const { email, password} = req.body;
       const user = await authService.loginWithEmailAndPassword(email, password);

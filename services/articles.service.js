@@ -8,7 +8,7 @@ const addArticle = async (body) => {
             ...body,
             score: parseInt(body.score)
         });
-        article.save();
+        await article.save();
         return article;
         
     } catch (error) {
@@ -19,10 +19,12 @@ const addArticle = async (body) => {
 const getArticleById = async (_id, user) => {
     try {
         const article = await Article.findById(_id);
+
         if(!article) throw new ApiError(httpStatus.NOT_FOUND, 'Article not found');
         if (user.role === 'user' && article.status === 'draft') {
             throw new ApiError(httpStatus.NOT_FOUND, 'Sorry you are not allowed');
         }
+
         return article;
     } catch (error) {
         throw error;
@@ -31,11 +33,14 @@ const getArticleById = async (_id, user) => {
 
 const getUserArticleById = async (_id) => {
     try {
+
         const article = await Article.findById(_id);
+
         if(!article) throw new ApiError(httpStatus.NOT_FOUND, 'Article not found');
         if (article.status === 'draft') {
             throw new ApiError(httpStatus.NOT_FOUND, 'Sorry you are not allowed');
         }
+
         return article;
     } catch (error) {
         throw error;
@@ -43,12 +48,11 @@ const getUserArticleById = async (_id) => {
 };
  
 const updateArticleById = async (_id, body) => {
+
+    const { _id: bodyId, ...updateData } = body;
+
     try {
-        const article = await Article.findOneAndUpdate(
-            {_id},
-            {"$set": body },
-            {new: true}
-        );
+        const article = await Article.findOneAndUpdate({_id}, updateData, {new: true});
 
         if(!article) throw new ApiError(httpStatus.NOT_FOUND, 'Article not found');
         return article;
@@ -60,7 +64,7 @@ const updateArticleById = async (_id, body) => {
 
 const deleteArticleById = async (_id) => {
     try {
-        const article = await Article.findByIdAndRemove(_id);
+        const article = await Article.findByIdAndDelete(_id);
         if(!article) throw new ApiError(httpStatus.NOT_FOUND, 'Article not found');
         return article;
 
@@ -74,11 +78,13 @@ const getAllArticles = async (req) => {
     const order = req.query.order || "desc";
     const limit = req.query.limit || 2;
 
+    const sortOrder = order.toLowerCase() === 'asc' ? 1 : -1;
+
     try {
         const articles = await Article
           .find({status:"public"})
           .sort([
-            [sortby, order]
+            [sortby, sortOrder]
           ])
           .limit(parseInt(limit))
           return articles;
@@ -94,11 +100,13 @@ const getMoreArticles = async (req) => {
     const limit = req.body.limit || 3;
     const skip = req.body.skip || 0;
 
+    const sortOrder = order.toLowerCase() === 'asc' ? 1 : -1;
+
     try {
         const articles = await Article
           .find({status:"public"})
           .sort([
-            [sortby, order]
+            [sortby, sortOrder]
           ])
           .skip(skip)
           .limit(parseInt(limit))
@@ -111,7 +119,9 @@ const getMoreArticles = async (req) => {
 
 const paginateAdminArticles = async (req) => {
     try {
+
         let aggQuery = Article.aggregate();
+        
         if (req.body.keywords && req.body.keywords != '') {
             const rg = new RegExp(`${req.body.keywords}`,`gi`);
             aggQuery = Article.aggregate([

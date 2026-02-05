@@ -1,44 +1,66 @@
-const passport = require('passport');
-const { ApiError } = require('./apiErros');
-const httpStatus = require('http-status');
-const { roles } = require('../config/roles');
+const passport = require("passport");
+const { ApiError } = require("./apiErros");
+const httpStatus = require("http-status");
+const { roles } = require("../config/roles");
 
-const verify = (req, res, resolve, reject, rights) => async(err, user) => {
-    if (err || !user) {
-        return reject(new ApiError(httpStatus.UNAUTHORIZED, 'Sorry, you are not unauthorized'));
+const verify = (req, res, rights) => async (err, user) => {
+  if (err || !user) {
+    return reject(
+      new ApiError(httpStatus.UNAUTHORIZED, "Sorry, you are not unauthorized"),
+    );
+  }
+  req.user = {
+    _id: user._id,
+    email: user.email,
+    role: user.role,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    age: user.age,
+    verify: user.verify,
+  };
+
+  if (rights && rights.length === 2) {
+    const [action, resource] = rights;
+
+    const rolePermissions = roles.can(req.user.role);
+
+    if (!rolePermissions || typeof rolePermissions[action] !== "function") {
+      throw new ApiError(
+        httpStatus.FORBIDDEN,
+        "Sorry, you don't have enough rights",
+      );
     }
-    req.user = {
-        _id: user._id,
-        email: user.email,
-        role: user.role,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        age: user.age,
-        verify: user.verify
-    };
 
-    if (rights.length) {
-        const action = rights[0]; // createAny, readAny...
-        const resource = rights[1];//test
-        const permission = roles.can(req.user.role)[action](resource);
-        if(!permission.granted){
-            return reject(new ApiError(httpStatus.FORBIDDEN,"Sorry, you don't have enough rights"))
-        }
-        res.locals.permission = permission;
+    const permission = rolePermissions[action](resource);
+
+    if (!permission.granted) {
+      throw new ApiError(
+        httpStatus.FORBIDDEN,
+        "Sorry, you don't have enough rights",
+      );
     }
 
-    resolve();
+    res.locals.permission = permission;
+  }
+
+  resolve();
 };
 
-const auth = (...rights) => async(req, res, next) => {
-   return new Promise((resolve, reject) => {
-      passport.authenticate('jwt', {session: false}, verify(req, res, resolve, reject, rights))
-                           (req, res, next);
-   })
-   .then(() => next())
-   .catch((err)=> next(err))
-}
-
-
+const auth =
+  (...rights) =>
+  async (req, res, next) => {
+    passport.authenticate(
+      "jwt",
+      { session: false },
+      async (err, user, info) => {
+        try {
+          await verify(req, res, rights)(err, user, info);
+          next();
+        } catch (error) {
+          next(error);
+        }
+      },
+    )(req, res, next);
+  };
 
 module.exports = auth;
